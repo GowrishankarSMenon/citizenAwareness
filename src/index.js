@@ -3,6 +3,7 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const multer = require('multer');
+const session = require('express-session');
 const User = require('./config'); // Import the User model
 const Post = require('./postModel'); // Import the Post model
 
@@ -11,8 +12,7 @@ const port = 5000;
 
 // Connect to MongoDB
 mongoose.connect('mongodb://127.0.0.1:27017/Login-tut', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+    // Removed deprecated options
 })
 .then(() => console.log('Connected to MongoDB'))
 .catch((error) => console.error('Error connecting to MongoDB:', error));
@@ -24,22 +24,21 @@ app.use(express.json());
 // Middleware to serve static files (including uploaded images)
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Configure session middleware
+app.use(session({
+    secret: '952688486969gowriakshayjayadev', // Change this to a secure, random secret key
+    resave: false,
+    saveUninitialized: false,
+}));
+
 // Set EJS as the view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Ensure the uploads directory exists
-const fs = require('fs');
-const uploadsDir = path.join(__dirname, 'public', 'uploads');
-
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
 // Configure multer for file uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadsDir); // Directory for storing uploaded files
+        cb(null, 'public/uploads'); // Directory for storing uploaded files
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname)); // Unique file name
@@ -59,6 +58,9 @@ app.get("/signup", (req, res) => {
 
 // Route to render the create post page
 app.get('/create-post', (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/');
+    }
     res.render('createPost');
 });
 
@@ -66,7 +68,7 @@ app.get('/create-post', (req, res) => {
 app.get('/feed', async (req, res) => {
     try {
         const posts = await Post.find();
-        res.render('feed', { posts });
+        res.render('feed', { posts, user: req.session.user });
     } catch (error) {
         console.error('Error fetching posts:', error);
         res.send('Error loading posts');
@@ -75,9 +77,11 @@ app.get('/feed', async (req, res) => {
 
 // Route to render user-specific posts
 app.get('/my-posts', async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/');
+    }
     try {
-        const user = 'exampleUser'; // Replace with actual logged-in user
-        const posts = await Post.find({ author: user });
+        const posts = await Post.find({ author: req.session.user.name });
         res.render('myPosts', { posts });
     } catch (error) {
         console.error('Error fetching posts:', error);
@@ -91,6 +95,7 @@ app.post('/login', async (req, res) => {
     try {
         const user = await User.findOne({ name: email });
         if (user && await bcrypt.compare(password, user.password)) {
+            req.session.user = user; // Save user info in session
             res.redirect('/feed?message=Login successful');
         } else {
             res.redirect('/?message=Invalid email or password');
@@ -105,7 +110,6 @@ app.post('/login', async (req, res) => {
 app.post('/signup', async (req, res) => {
     const { email, password } = req.body;
     try {
-        // Check if the user already exists
         const existingUser = await User.findOne({ name: email });
         if (existingUser) {
             return res.redirect('/signup?message=User already exists');
@@ -126,12 +130,15 @@ app.post('/signup', async (req, res) => {
 
 // Handle post creation
 app.post('/create-post', upload.single('image'), async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/');
+    }
     const { title, description, priority } = req.body;
     const imageUrl = `/uploads/${req.file.filename}`; // URL to access the uploaded image
 
     try {
         const newPost = new Post({
-            author: 'exampleUser', // Replace with actual logged-in user
+            author: req.session.user.name,
             title,
             description,
             imageUrl,
@@ -155,6 +162,18 @@ app.post('/delete-post/:id', async (req, res) => {
         res.redirect('/my-posts?message=Error deleting post');
     }
 });
+
+// Handle logout
+app.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            console.error('Error during logout:', err);
+            return res.redirect('/feed?message=Error during logout');
+        }
+        res.redirect('/');
+    });
+});
+
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
