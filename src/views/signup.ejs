@@ -76,5 +76,12 @@
             </div>
         </div>
     </section>
+    <script>
+        // Display alerts based on URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('message')) {
+            alert(urlParams.get('message'));
+        }
+    </script>
 </body>
 </html>
