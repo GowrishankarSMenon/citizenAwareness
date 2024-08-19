@@ -68,42 +68,42 @@ app.get('/create-post', (req, res) => {
 app.get('/feed', async (req, res) => {
     const userLatitude = parseFloat(req.query.latitude) || 0; // User's latitude
     const userLongitude = parseFloat(req.query.longitude) || 0; // User's longitude
-    const sortByLocation = req.query.sortByLocation === 'on'; // Check if sorting by location is selected
+    const sortByLocation = req.query.sortByLocation === 'on'; // Whether to sort by location
+    const radius = req.query.radius || ''; // Radius for location-based filtering
+
+    let filter = {};
+    if (sortByLocation && radius) {
+        filter = {
+            location: {
+                $geoWithin: {
+                    $centerSphere: [
+                        [userLongitude, userLatitude],
+                        parseFloat(radius) / 6378.1 // Radius in radians
+                    ]
+                }
+            }
+        };
+    }
 
     try {
-        let posts;
-        if (sortByLocation) {
-            posts = await Post.find({
-                location: {
-                    $near: {
-                        $geometry: {
-                            type: 'Point',
-                            coordinates: [userLongitude, userLatitude]
-                        },
-                        $maxDistance: 10000 // Max distance in meters
-                    }
-                }
-            }).sort({ priority: 1 }); // Sort by priority
-        } else {
-            posts = await Post.find().sort({ priority: 1 }); // Sort by priority
-        }
+        const posts = await Post.find(filter).sort({ date: -1 }); // Adjust sorting as needed
+        const groupedPosts = posts.reduce((acc, post) => {
+            acc[post.priority].push(post);
+            return acc;
+        }, { high: [], medium: [], low: [] });
 
-        // Group posts by priority
-        const groupedPosts = {
-            high: [],
-            medium: [],
-            low: []
-        };
-        posts.forEach(post => {
-            groupedPosts[post.priority].push(post);
+        res.render('feed', { 
+            groupedPosts, 
+            sortByLocation, 
+            radius, 
+            user: { latitude: userLatitude, longitude: userLongitude } // Assuming user location is available
         });
-
-        res.render('feed', { groupedPosts, user: req.session.user });
-    } catch (error) {
-        console.error('Error fetching posts:', error);
-        res.send('Error loading posts');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
     }
 });
+
 
 
 

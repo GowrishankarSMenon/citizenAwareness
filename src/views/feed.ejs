@@ -26,14 +26,23 @@
     <div class="container mt-4">
         <h1>Feed</h1>
         <form action="/feed" method="GET">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="sortByLocation" name="sortByLocation">
-                <label class="form-check-label" for="sortByLocation">
-                    Sort by location
-                </label>
+            <div class="form-group mt-3" id="radius-group">
+                <label for="radius" class="form-label">Radius:</label>
+                <select id="radius" name="radius" class="form-select">
+                    <option value="">All Posts</option>
+                    <option value="1000" <%= radius === '1000' ? 'selected' : '' %>>1 km</option>
+                    <option value="5000" <%= radius === '5000' ? 'selected' : '' %>>5 km</option>
+                    <option value="10000" <%= radius === '10000' ? 'selected' : '' %>>10 km</option>
+                    <option value="100000" <%= radius === '100000' ? 'selected' : '' %>>10+ km</option>
+                </select>
             </div>
+            <input type="hidden" id="latitude" name="latitude" value="<%= user ? user.latitude : '' %>">
+            <input type="hidden" id="longitude" name="longitude" value="<%= user ? user.longitude : '' %>">
             <button type="submit" class="btn btn-primary mt-2">Apply</button>
         </form>
+
+        <% const totalPosts = groupedPosts.high.length + groupedPosts.medium.length + groupedPosts.low.length; %>
+        <p class="mt-4">Showing <%= totalPosts %> posts.</p>
 
         <% if (groupedPosts.high.length > 0) { %>
             <h2 class="mt-4">Top Priority</h2>
@@ -43,8 +52,8 @@
                         <h3><%= post.title %></h3>
                         <p><%= post.description %></p>
                         <p><strong>Priority:</strong> <%= post.priority %></p>
-                        <% if (post.location && post.location.coordinates) { %>
-                            <p><strong>Location:</strong> Latitude: <%= post.location.coordinates[1] %>, Longitude: <%= post.location.coordinates[0] %></p>
+                        <% if (post.locationName) { %>
+                            <p><strong>Location:</strong> <%= post.locationName %></p>
                         <% } %>
                         <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
                     </li>
@@ -60,8 +69,8 @@
                         <h3><%= post.title %></h3>
                         <p><%= post.description %></p>
                         <p><strong>Priority:</strong> <%= post.priority %></p>
-                        <% if (post.location && post.location.coordinates) { %>
-                            <p><strong>Location:</strong> Latitude: <%= post.location.coordinates[1] %>, Longitude: <%= post.location.coordinates[0] %></p>
+                        <% if (post.locationName) { %>
+                            <p><strong>Location:</strong> <%= post.locationName %></p>
                         <% } %>
                         <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
                     </li>
@@ -77,8 +86,8 @@
                         <h3><%= post.title %></h3>
                         <p><%= post.description %></p>
                         <p><strong>Priority:</strong> <%= post.priority %></p>
-                        <% if (post.location && post.location.coordinates) { %>
-                            <p><strong>Location:</strong> Latitude: <%= post.location.coordinates[1] %>, Longitude: <%= post.location.coordinates[0] %></p>
+                        <% if (post.locationName) { %>
+                            <p><strong>Location:</strong> <%= post.locationName %></p>
                         <% } %>
                         <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
                     </li>
@@ -86,5 +95,16 @@
             </ul>
         <% } %>
     </div>
+
+    <script>
+        // Ensure the radius filter is shown if location sorting was selected before
+        document.addEventListener('DOMContentLoaded', function() {
+            const radiusGroup = document.getElementById('radius-group');
+            const sortByLocation = document.getElementById('sortByLocation');
+            if (sortByLocation) {
+                radiusGroup.style.display = sortByLocation.checked ? 'block' : 'none';
+            }
+        });
+    </script>
 </body>
 </html>

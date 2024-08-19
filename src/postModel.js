@@ -36,6 +36,9 @@ const PostSchema = new mongoose.Schema({
             type: [Number], // [longitude, latitude]
             required: true
         }
+    },
+    locationName: {
+        type: String // Optional: name of the location
     }
 });
 
