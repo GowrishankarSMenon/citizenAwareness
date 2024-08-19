@@ -55,7 +55,15 @@
                         <% if (post.locationName) { %>
                             <p><strong>Location:</strong> <%= post.locationName %></p>
                         <% } %>
-                        <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
+                        <% if (post.imageUrl) { %>
+                            <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
+                        <% } %>
+                        <% if (post.videoUrl) { %>
+                            <video controls style="max-width: 300px;">
+                                <source src="<%= post.videoUrl %>" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        <% } %>
                     </li>
                 <% }) %>
             </ul>
@@ -72,7 +80,15 @@
                         <% if (post.locationName) { %>
                             <p><strong>Location:</strong> <%= post.locationName %></p>
                         <% } %>
-                        <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
+                        <% if (post.imageUrl) { %>
+                            <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
+                        <% } %>
+                        <% if (post.videoUrl) { %>
+                            <video controls style="max-width: 300px;">
+                                <source src="<%= post.videoUrl %>" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        <% } %>
                     </li>
                 <% }) %>
             </ul>
@@ -89,7 +105,15 @@
                         <% if (post.locationName) { %>
                             <p><strong>Location:</strong> <%= post.locationName %></p>
                         <% } %>
-                        <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
+                        <% if (post.imageUrl) { %>
+                            <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
+                        <% } %>
+                        <% if (post.videoUrl) { %>
+                            <video controls style="max-width: 300px;">
+                                <source src="<%= post.videoUrl %>" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        <% } %>
                     </li>
                 <% }) %>
             </ul>

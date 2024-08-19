@@ -162,12 +162,13 @@ app.post('/signup', async (req, res) => {
 });
 
 // Handle post creation
-app.post('/create-post', upload.single('image'), async (req, res) => {
+app.post('/create-post', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'video', maxCount: 1 }]), async (req, res) => {
     if (!req.session.user) {
         return res.redirect('/');
     }
     const { title, description, priority, latitude, longitude } = req.body;
-    const imageUrl = `/uploads/${req.file.filename}`; // URL to access the uploaded image
+    const imageUrl = req.files['image'] ? `/uploads/${req.files['image'][0].filename}` : null;
+    const videoUrl = req.files['video'] ? `/uploads/${req.files['video'][0].filename}` : null;
 
     try {
         const newPost = new Post({
@@ -175,6 +176,7 @@ app.post('/create-post', upload.single('image'), async (req, res) => {
             title,
             description,
             imageUrl,
+            videoUrl, // Include videoUrl
             priority,
             location: {
                 type: 'Point',
@@ -188,6 +190,7 @@ app.post('/create-post', upload.single('image'), async (req, res) => {
         res.redirect('/create-post?message=Error creating post');
     }
 });
+
 
 
 // Handle deleting a post

@@ -15,7 +15,11 @@ const PostSchema = new mongoose.Schema({
     },
     imageUrl: {
         type: String,
-        required: true
+        // Optional: Can be required based on your needs
+    },
+    videoUrl: {
+        type: String,
+        // Optional: Can be required based on your needs
     },
     priority: {
         type: String,
