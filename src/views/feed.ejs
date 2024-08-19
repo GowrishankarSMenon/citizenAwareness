@@ -169,22 +169,21 @@
             var mapPanel = document.getElementById('mapPanel');
             mapPanel.classList.toggle('open');
         });
-
+    
         // Initialize Leaflet map
         document.addEventListener('DOMContentLoaded', function() {
             var map = L.map('map').setView([0, 0], 2); // Default center
-
+    
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
-
-            const posts = JSON.parse('<%= JSON.stringify(groupedPosts.high.concat(groupedPosts.medium).concat(groupedPosts.low)) %>');
-
+    
+            const posts = JSON.parse('[{"location":{"type":"Point","coordinates":[76.3984424,10.2296973]},"_id":"66c31695e8f74539338ae2d1","author":"akshaysunil@gmail.com","title":"asd","description":"asd","imageUrl":"/uploads/1724061333836.jpg","videoUrl":null,"priority":"high","date":"2024-08-19T09:55:33.847Z","__v":0},{"location":{"type":"Point","coordinates":[76.3984424,10.2296973]},"_id":"66c31890cfdb8f7136b42feb","author":"akshaysunil@gmail.com","title":"precaution","description":"hii","imageUrl":"/uploads/1724061840017.jpg","videoUrl":null,"priority":"medium","date":"2024-08-19T10:04:00.023Z","__v":0}]');
+            
             posts.forEach(post => {
                 if (post.location && post.location.coordinates && post.location.coordinates.length === 2) {
                     const [longitude, latitude] = post.location.coordinates;
-                    L.marker([latitude, longitude]).addTo(map)
-                        .bindPopup(`<b>${post.title}</b><br>${post.description}<br><a href="${post.imageUrl || post.videoUrl}" target="_blank">View Media</a>`);
+                    L.marker([latitude, longitude]).addTo(map);
                 }
             });
         });
