@@ -2,9 +2,16 @@
 <html lang="en">
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feed</title>
+    <style>
+        #map {
+            height: 400px; /* Define height for the map */
+            width: 100%;   /* Full width for the map */
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -44,6 +51,9 @@
         <% const totalPosts = groupedPosts.high.length + groupedPosts.medium.length + groupedPosts.low.length; %>
         <p class="mt-4">Showing <%= totalPosts %> posts.</p>
 
+        <!-- Map container -->
+        <div id="map"></div>
+
         <% if (groupedPosts.high.length > 0) { %>
             <h2 class="mt-4">Top Priority</h2>
             <ul class="list-group">
@@ -57,12 +67,6 @@
                         <% } %>
                         <% if (post.imageUrl) { %>
                             <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
-                        <% } %>
-                        <% if (post.videoUrl) { %>
-                            <video controls style="max-width: 300px;">
-                                <source src="<%= post.videoUrl %>" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
                         <% } %>
                     </li>
                 <% }) %>
@@ -83,12 +87,6 @@
                         <% if (post.imageUrl) { %>
                             <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
                         <% } %>
-                        <% if (post.videoUrl) { %>
-                            <video controls style="max-width: 300px;">
-                                <source src="<%= post.videoUrl %>" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        <% } %>
                     </li>
                 <% }) %>
             </ul>
@@ -108,26 +106,34 @@
                         <% if (post.imageUrl) { %>
                             <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
                         <% } %>
-                        <% if (post.videoUrl) { %>
-                            <video controls style="max-width: 300px;">
-                                <source src="<%= post.videoUrl %>" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        <% } %>
                     </li>
                 <% }) %>
             </ul>
         <% } %>
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Ensure the radius filter is shown if location sorting was selected before
         document.addEventListener('DOMContentLoaded', function() {
-            const radiusGroup = document.getElementById('radius-group');
-            const sortByLocation = document.getElementById('sortByLocation');
-            if (sortByLocation) {
-                radiusGroup.style.display = sortByLocation.checked ? 'block' : 'none';
-            }
+            // Initialize the map
+            const map = L.map('map').setView([51.505, -0.09], 13);
+
+            // Add a tile layer to the map
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Extract the posts data from the EJS template
+            const posts = JSON.parse('<%= JSON.stringify(groupedPosts.high.concat(groupedPosts.medium).concat(groupedPosts.low)) %>');
+
+            // Add markers for each post with a location
+            posts.forEach(post => {
+                if (post.location && post.location.coordinates && post.location.coordinates.length === 2) {
+                    const [longitude, latitude] = post.location.coordinates;
+                    L.marker([latitude, longitude]).addTo(map)
+                        .bindPopup(`<b>${post.title}</b><br>${post.description}<br><a href="${post.imageUrl || post.videoUrl}" target="_blank">View Media</a>`);
+                }
+            });
         });
     </script>
 </body>
