@@ -25,16 +25,66 @@
     </nav>
     <div class="container mt-4">
         <h1>Feed</h1>
-        <ul class="list-group">
-            <% posts.forEach(post => { %>
-                <li class="list-group-item">
-                    <h2><%= post.title %></h2>
-                    <p><%= post.description %></p>
-                    <p><strong>Priority:</strong> <%= post.priority %></p>
-                    <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
-                </li>
-            <% }) %>
-        </ul>
+        <form action="/feed" method="GET">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="sortByLocation" name="sortByLocation">
+                <label class="form-check-label" for="sortByLocation">
+                    Sort by location
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">Apply</button>
+        </form>
+
+        <% if (groupedPosts.high.length > 0) { %>
+            <h2 class="mt-4">Top Priority</h2>
+            <ul class="list-group">
+                <% groupedPosts.high.forEach(post => { %>
+                    <li class="list-group-item">
+                        <h3><%= post.title %></h3>
+                        <p><%= post.description %></p>
+                        <p><strong>Priority:</strong> <%= post.priority %></p>
+                        <% if (post.location && post.location.coordinates) { %>
+                            <p><strong>Location:</strong> Latitude: <%= post.location.coordinates[1] %>, Longitude: <%= post.location.coordinates[0] %></p>
+                        <% } %>
+                        <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
+                    </li>
+                <% }) %>
+            </ul>
+        <% } %>
+
+        <% if (groupedPosts.medium.length > 0) { %>
+            <h2 class="mt-4">Medium Priority</h2>
+            <ul class="list-group">
+                <% groupedPosts.medium.forEach(post => { %>
+                    <li class="list-group-item">
+                        <h3><%= post.title %></h3>
+                        <p><%= post.description %></p>
+                        <p><strong>Priority:</strong> <%= post.priority %></p>
+                        <% if (post.location && post.location.coordinates) { %>
+                            <p><strong>Location:</strong> Latitude: <%= post.location.coordinates[1] %>, Longitude: <%= post.location.coordinates[0] %></p>
+                        <% } %>
+                        <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
+                    </li>
+                <% }) %>
+            </ul>
+        <% } %>
+
+        <% if (groupedPosts.low.length > 0) { %>
+            <h2 class="mt-4">Low Priority</h2>
+            <ul class="list-group">
+                <% groupedPosts.low.forEach(post => { %>
+                    <li class="list-group-item">
+                        <h3><%= post.title %></h3>
+                        <p><%= post.description %></p>
+                        <p><strong>Priority:</strong> <%= post.priority %></p>
+                        <% if (post.location && post.location.coordinates) { %>
+                            <p><strong>Location:</strong> Latitude: <%= post.location.coordinates[1] %>, Longitude: <%= post.location.coordinates[0] %></p>
+                        <% } %>
+                        <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
+                    </li>
+                <% }) %>
+            </ul>
+        <% } %>
     </div>
 </body>
 </html>

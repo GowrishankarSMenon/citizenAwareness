@@ -25,8 +25,22 @@ const PostSchema = new mongoose.Schema({
     date: {
         type: Date,
         default: Date.now
+    },
+    location: {
+        type: {
+            type: String,
+            enum: ['Point'],
+            required: true
+        },
+        coordinates: {
+            type: [Number], // [longitude, latitude]
+            required: true
+        }
     }
 });
+
+// Create a 2dsphere index for geospatial queries
+PostSchema.index({ location: '2dsphere' });
 
 const Post = mongoose.model('Post', PostSchema);
 

@@ -66,14 +66,47 @@ app.get('/create-post', (req, res) => {
 
 // Route to render the feed page
 app.get('/feed', async (req, res) => {
+    const userLatitude = parseFloat(req.query.latitude) || 0; // User's latitude
+    const userLongitude = parseFloat(req.query.longitude) || 0; // User's longitude
+    const sortByLocation = req.query.sortByLocation === 'on'; // Check if sorting by location is selected
+
     try {
-        const posts = await Post.find();
-        res.render('feed', { posts, user: req.session.user });
+        let posts;
+        if (sortByLocation) {
+            posts = await Post.find({
+                location: {
+                    $near: {
+                        $geometry: {
+                            type: 'Point',
+                            coordinates: [userLongitude, userLatitude]
+                        },
+                        $maxDistance: 10000 // Max distance in meters
+                    }
+                }
+            }).sort({ priority: 1 }); // Sort by priority
+        } else {
+            posts = await Post.find().sort({ priority: 1 }); // Sort by priority
+        }
+
+        // Group posts by priority
+        const groupedPosts = {
+            high: [],
+            medium: [],
+            low: []
+        };
+        posts.forEach(post => {
+            groupedPosts[post.priority].push(post);
+        });
+
+        res.render('feed', { groupedPosts, user: req.session.user });
     } catch (error) {
         console.error('Error fetching posts:', error);
         res.send('Error loading posts');
     }
 });
+
+
+
 
 // Route to render user-specific posts
 app.get('/my-posts', async (req, res) => {
@@ -133,7 +166,7 @@ app.post('/create-post', upload.single('image'), async (req, res) => {
     if (!req.session.user) {
         return res.redirect('/');
     }
-    const { title, description, priority } = req.body;
+    const { title, description, priority, latitude, longitude } = req.body;
     const imageUrl = `/uploads/${req.file.filename}`; // URL to access the uploaded image
 
     try {
@@ -142,7 +175,11 @@ app.post('/create-post', upload.single('image'), async (req, res) => {
             title,
             description,
             imageUrl,
-            priority
+            priority,
+            location: {
+                type: 'Point',
+                coordinates: [parseFloat(longitude), parseFloat(latitude)]
+            }
         });
         await newPost.save();
         res.redirect('/feed?message=Post created successfully');
@@ -151,6 +188,7 @@ app.post('/create-post', upload.single('image'), async (req, res) => {
         res.redirect('/create-post?message=Error creating post');
     }
 });
+
 
 // Handle deleting a post
 app.post('/delete-post/:id', async (req, res) => {

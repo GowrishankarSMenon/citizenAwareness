@@ -18,33 +18,64 @@
                     <a class="nav-link" href="/my-posts">My Posts</a>
                 </li>
             </ul>
+            <form action="/logout" method="GET" class="d-inline">
+                <button type="submit" class="btn btn-danger">Logout</button>
+            </form>
         </div>
     </nav>
     <div class="container mt-4">
         <h1>Create Post</h1>
-        <form action="/create-post" method="POST" enctype="multipart/form-data">
+        <form action="/create-post" method="POST" enctype="multipart/form-data" onsubmit="getLocation(event)">
             <div class="mb-3">
-                <label for="title" class="form-label">Title:</label>
-                <input type="text" id="title" name="title" class="form-control" required>
+                <label for="title" class="form-label">Title</label>
+                <input type="text" class="form-control" id="title" name="title" required>
             </div>
             <div class="mb-3">
-                <label for="description" class="form-label">Description:</label>
-                <textarea id="description" name="description" class="form-control" required></textarea>
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" required></textarea>
             </div>
             <div class="mb-3">
-                <label for="priority" class="form-label">Priority:</label>
-                <select id="priority" name="priority" class="form-select" required>
+                <label for="image" class="form-label">Image</label>
+                <input type="file" class="form-control" id="image" name="image" required>
+            </div>
+            <div class="mb-3">
+                <label for="priority" class="form-label">Priority</label>
+                <select class="form-control" id="priority" name="priority">
                     <option value="high">High</option>
                     <option value="medium">Medium</option>
                     <option value="low">Low</option>
                 </select>
             </div>
-            <div class="mb-3">
-                <label for="image" class="form-label">Image:</label>
-                <input type="file" id="image" name="image" class="form-control" accept="image/*" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Create Post</button>
+            <!-- Hidden fields for latitude and longitude -->
+            <input type="hidden" id="latitude" name="latitude">
+            <input type="hidden" id="longitude" name="longitude">
+            <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
+
+    <script>
+        function getLocation(event) {
+            event.preventDefault(); // Prevent form submission
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    // Get latitude and longitude
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    // Set the values in hidden fields
+                    document.getElementById('latitude').value = latitude;
+                    document.getElementById('longitude').value = longitude;
+
+                    // Submit the form
+                    event.target.submit();
+                }, function() {
+                    alert('Unable to retrieve your location.');
+                });
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        }
+    </script>
 </body>
 </html>
