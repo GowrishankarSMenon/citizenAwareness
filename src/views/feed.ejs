@@ -5,20 +5,22 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         #mapPanel {
-            height: 400px;
-            width: 300px;
+            height: 400px; 
+            width: 300px; 
             position: fixed;
             top: 10px;
             right: 10px;
-            transition: transform 0.3s ease;
-            transform: translateX(100%);
+            transform: translateX(100%); /* Hide initially */
+            transition: transform 0.5s ease, opacity 0.5s ease; /* Smooth transition */
             z-index: 1000;
             background: white;
             border: 1px solid #ddd;
+            opacity: 0; /* Hide opacity initially */
             overflow: hidden;
         }
         #mapPanel.open {
-            transform: translateX(0);
+            transform: translateX(0); /* Slide in */
+            opacity: 1; /* Fade in */
         }
         #mapButton {
             position: fixed;
