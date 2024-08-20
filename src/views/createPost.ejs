@@ -1,16 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Post</title>
+    <style>
+        /* Enhanced styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .navbar {
+            border-bottom: 2px solid #007bff;
+        }
+
+        .navbar-brand,
+        .nav-link {
+            color: #007bff;
+        }
+
+        .navbar-brand:hover,
+        .nav-link:hover {
+            color: #0056b3;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            border-radius: 8px;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        .btn-danger {
+            border-radius: 8px;
+        }
+
+        .form-control-file {
+            border-radius: 8px;
+        }
+
+        .mb-3 {
+            margin-bottom: 20px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+    </style>
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="/feed">Home</a>
         <div class="collapse navbar-collapse">
-            <ul class="navbar-nav mr-auto">
+            <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="/create-post">Create Post</a>
                 </li>
@@ -23,6 +105,7 @@
             </form>
         </div>
     </nav>
+
     <div class="container mt-4">
         <h1>Create Post</h1>
         <form action="/create-post" method="POST" enctype="multipart/form-data" onsubmit="getLocation(event)">
@@ -32,15 +115,15 @@
             </div>
             <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
-                <textarea class="form-control" id="description" name="description" required></textarea>
+                <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
             </div>
             <div class="mb-3">
                 <label for="image" class="form-label">Image</label>
-                <input type="file" class="form-control" id="image" name="image">
+                <input type="file" class="form-control-file" id="image" name="image">
             </div>
             <div class="mb-3">
                 <label for="video" class="form-label">Video</label>
-                <input type="file" class="form-control" id="video" name="video">
+                <input type="file" class="form-control-file" id="video" name="video">
             </div>
             <div class="mb-3">
                 <label for="priority" class="form-label">Priority</label>
@@ -53,7 +136,10 @@
             <!-- Hidden fields for latitude and longitude -->
             <input type="hidden" id="latitude" name="latitude">
             <input type="hidden" id="longitude" name="longitude">
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="button" class="btn btn-danger" onclick="window.location.href='/feed'">Cancel</button>
+            </div>
         </form>
     </div>
 
@@ -62,7 +148,7 @@
             event.preventDefault(); // Prevent form submission
 
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
+                navigator.geolocation.getCurrentPosition(function (position) {
                     // Get latitude and longitude
                     const latitude = position.coords.latitude;
                     const longitude = position.coords.longitude;
@@ -73,7 +159,7 @@
 
                     // Submit the form
                     event.target.submit();
-                }, function() {
+                }, function () {
                     alert('Unable to retrieve your location.');
                 });
             } else {
@@ -82,4 +168,5 @@
         }
     </script>
 </body>
+
 </html>

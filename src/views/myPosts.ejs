@@ -1,40 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Enhanced styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #007bff;
+        }
+
+        h2 {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .list-group-item {
+            border: none;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+        }
+
+        .list-group-item h3 {
+            margin-top: 0;
+        }
+
+        .list-group-item img {
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .list-group-item video {
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .nav-buttons {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .nav-buttons a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .nav-buttons a:hover {
+            text-decoration: underline;
+        }
+
+        /* Modern form styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .form-select {
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+        /* Logout button styling */
+        .logout-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Posts</title>
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="/feed">Home</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/create-post">Create Post</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/my-posts">My Posts</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+    <!-- Logout Button -->
+    <div class="logout-container">
+        <form action="/logout" method="GET" class="d-inline">
+            <button type="submit" class="btn btn-danger">Logout</button>
+        </form>
+    </div>
+
     <div class="container mt-4">
         <h1>My Posts</h1>
-        <ul class="list-group">
-            <% posts.forEach(post => { %>
-                <li class="list-group-item">
-                    <h2><%= post.title %></h2>
-                    <p><%= post.description %></p>
-                    <p><strong>Priority:</strong> <%= post.priority %></p>
-                    <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
-                    <form action="/delete-post/<%= post._id %>" method="POST" style="display: inline;">
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
-                </li>
-            <% }) %>
-        </ul>
+
+        <!-- Navigation Links -->
+        <div class="nav-buttons">
+            <a href="/feed" class="btn btn-outline-primary me-2">Feed</a>
+            <a href="/create-post" class="btn btn-outline-secondary">Create Post</a>
+        </div>
+
+        <% if (posts.length > 0) { %>
+            <ul class="list-group">
+                <% posts.forEach(post => { %>
+                    <li class="list-group-item">
+                        <h3><%= post.title %></h3>
+                        <p><%= post.description %></p>
+                        <p><strong>Priority:</strong> <%= post.priority %></p>
+                        <% if (post.locationName) { %>
+                            <p><strong>Location:</strong> <%= post.locationName %></p>
+                        <% } %>
+                        <% if (post.imageUrl) { %>
+                            <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 100%;">
+                        <% } %>
+                        <% if (post.videoUrl) { %>
+                            <video controls style="max-width: 100%;">
+                                <source src="<%= post.videoUrl %>" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        <% } %>
+                        <form action="/delete-post/<%= post._id %>" method="POST" style="margin-top: 10px;">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </li>
+                <% }) %>
+            </ul>
+        <% } else { %>
+            <p>No posts found.</p>
+        <% } %>
     </div>
 </body>
+
 </html>

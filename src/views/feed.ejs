@@ -1,69 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
-        #mapPanel {
-            height: 400px; 
-            width: 300px; 
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            transform: translateX(100%); /* Hide initially */
-            transition: transform 0.5s ease, opacity 0.5s ease; /* Smooth transition */
-            z-index: 1000;
-            background: white;
-            border: 1px solid #ddd;
-            opacity: 0; /* Hide opacity initially */
-            overflow: hidden;
+        /* Enhanced styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
         }
-        #mapPanel.open {
-            transform: translateX(0); /* Slide in */
-            opacity: 1; /* Fade in */
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
+        h1 {
+            color: #007bff;
+        }
+
+        h2 {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .list-group-item {
+            border: none;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+        }
+
+        .list-group-item h3 {
+            margin-top: 0;
+        }
+
+        .list-group-item img {
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .list-group-item video {
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
         #mapButton {
             position: fixed;
-            top: 10px;
-            right: 10px;
+            top: 20px;
+            right: 20px;
             background: #007bff;
             color: white;
             border: none;
-            padding: 10px;
+            padding: 15px;
             border-radius: 50%;
             cursor: pointer;
+            font-size: 20px;
             z-index: 1001;
+            transition: background 0.3s;
         }
+
+        #mapButton:hover {
+            background: #0056b3;
+        }
+
+        #mapPanel {
+            height: 400px;
+            width: 300px;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            transform: translateX(100%);
+            transition: transform 0.5s ease, opacity 0.5s ease;
+            z-index: 1000;
+            background: white;
+            border: 1px solid #ddd;
+            opacity: 0;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        #mapPanel.open {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
         #map {
             height: 100%;
             width: 100%;
+            border-radius: 8px;
+        }
+
+        .nav-buttons {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .nav-buttons a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .nav-buttons a:hover {
+            text-decoration: underline;
+        }
+
+        /* Modern form styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .form-select {
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
         }
     </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feed</title>
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="/feed">Home</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/create-post">Create Post</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/my-posts">My Posts</a>
-                </li>
-            </ul>
-            <form action="/logout" method="GET" class="d-inline">
-                <button type="submit" class="btn btn-danger">Logout</button>
-            </form>
-        </div>
-    </nav>
     <div class="container mt-4">
         <h1>Feed</h1>
+        
+        <!-- Navigation Links -->
+        <div class="nav-buttons">
+            <a href="/create-post" class="btn btn-outline-primary me-2">Create Post</a>
+            <a href="/my-posts" class="btn btn-outline-secondary">My Posts</a>
+        </div>
+
         <form action="/feed" method="GET">
-            <div class="form-group mt-3" id="radius-group">
+            <div class="form-group">
                 <label for="radius" class="form-label">Radius:</label>
                 <select id="radius" name="radius" class="form-select">
                     <option value="">All Posts</option>
@@ -93,10 +189,10 @@
                             <p><strong>Location:</strong> <%= post.locationName %></p>
                         <% } %>
                         <% if (post.imageUrl) { %>
-                            <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
+                            <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 100%;">
                         <% } %>
                         <% if (post.videoUrl) { %>
-                            <video controls style="max-width: 300px;">
+                            <video controls style="max-width: 100%;">
                                 <source src="<%= post.videoUrl %>" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
@@ -118,10 +214,10 @@
                             <p><strong>Location:</strong> <%= post.locationName %></p>
                         <% } %>
                         <% if (post.imageUrl) { %>
-                            <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
+                            <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 100%;">
                         <% } %>
                         <% if (post.videoUrl) { %>
-                            <video controls style="max-width: 300px;">
+                            <video controls style="max-width: 100%;">
                                 <source src="<%= post.videoUrl %>" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
@@ -143,10 +239,10 @@
                             <p><strong>Location:</strong> <%= post.locationName %></p>
                         <% } %>
                         <% if (post.imageUrl) { %>
-                            <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 300px;">
+                            <img src="<%= post.imageUrl %>" alt="<%= post.title %>" style="max-width: 100%;">
                         <% } %>
                         <% if (post.videoUrl) { %>
-                            <video controls style="max-width: 300px;">
+                            <video controls style="max-width: 100%;">
                                 <source src="<%= post.videoUrl %>" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
@@ -157,29 +253,28 @@
         <% } %>
     </div>
 
-    <button id="mapButton">🌍</button>
+    <!-- Leaflet map and script -->
+    <button id="mapButton">📍</button>
     <div id="mapPanel">
         <div id="map"></div>
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
-        // Toggle map panel
         document.getElementById('mapButton').addEventListener('click', function() {
             var mapPanel = document.getElementById('mapPanel');
             mapPanel.classList.toggle('open');
         });
-    
-        // Initialize Leaflet map
+
         document.addEventListener('DOMContentLoaded', function() {
-            var map = L.map('map').setView([0, 0], 2); // Default center
-    
+            var map = L.map('map').setView([0, 0], 2);
+
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
-    
+
             const posts = JSON.parse('[{"location":{"type":"Point","coordinates":[76.3984424,10.2296973]},"_id":"66c31695e8f74539338ae2d1","author":"akshaysunil@gmail.com","title":"asd","description":"asd","imageUrl":"/uploads/1724061333836.jpg","videoUrl":null,"priority":"high","date":"2024-08-19T09:55:33.847Z","__v":0},{"location":{"type":"Point","coordinates":[76.3984424,10.2296973]},"_id":"66c31890cfdb8f7136b42feb","author":"akshaysunil@gmail.com","title":"precaution","description":"hii","imageUrl":"/uploads/1724061840017.jpg","videoUrl":null,"priority":"medium","date":"2024-08-19T10:04:00.023Z","__v":0}]');
-            
+
             posts.forEach(post => {
                 if (post.location && post.location.coordinates && post.location.coordinates.length === 2) {
                     const [longitude, latitude] = post.location.coordinates;
@@ -189,4 +284,5 @@
         });
     </script>
 </body>
+
 </html>
