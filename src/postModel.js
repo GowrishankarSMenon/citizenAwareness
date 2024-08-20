@@ -1,54 +1,27 @@
 const mongoose = require('mongoose');
 
-const PostSchema = new mongoose.Schema({
-    author: {
-        type: String,
-        required: true
-    },
-    title: {
-        type: String,
-        required: true
-    },
-    description: {
-        type: String,
-        required: true
-    },
-    imageUrl: {
-        type: String,
-        // Optional: Can be required based on your needs
-    },
-    videoUrl: {
-        type: String,
-        // Optional: Can be required based on your needs
-    },
-    priority: {
-        type: String,
-        enum: ['high', 'medium', 'low'],
-        default: 'medium'
-    },
-    date: {
-        type: Date,
-        default: Date.now
-    },
+const postSchema = new mongoose.Schema({
+    author: String,
+    title: String,
+    description: String,
+    imageUrl: String,
+    videoUrl: String,
+    priority: String,
     location: {
-        type: {
-            type: String,
-            enum: ['Point'],
-            required: true
-        },
-        coordinates: {
-            type: [Number], // [longitude, latitude]
-            required: true
-        }
+        type: { type: String },
+        coordinates: [Number],
     },
-    locationName: {
-        type: String // Optional: name of the location
-    }
-});
+    likes: { type: Number, default: 0 },
+    dislikes: { type: Number, default: 0 },
+    comments: [{
+        author: String,
+        text: String,
+        date: { type: Date, default: Date.now }
+    }]
+}, { timestamps: true });
 
-// Create a 2dsphere index for geospatial queries
-PostSchema.index({ location: '2dsphere' });
+postSchema.index({ location: '2dsphere' });
 
-const Post = mongoose.model('Post', PostSchema);
+const Post = mongoose.model('Post', postSchema);
 
 module.exports = Post;

@@ -21,6 +21,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/Login-tut', {
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+// Middleware to parse the body of POST requests
+app.use(bodyParser.urlencoded({ extended: true }));
+
 // Middleware to serve static files (including uploaded images)
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -45,6 +48,41 @@ const storage = multer.diskStorage({
     }
 });
 const upload = multer({ storage });
+
+// POST route to handle comment submission
+app.post('/comment-post/:postId', async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const { comment } = req.body;
+
+        // Validate input
+        if (!comment || !postId) {
+            return res.status(400).send('Comment or Post ID is missing');
+        }
+
+        // Find the post by ID
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).send('Post not found');
+        }
+
+        // Add the new comment to the post's comments array
+        post.comments.push({
+            author: req.session.user ? req.session.user.name : 'Anonymous', // Change based on your user info
+            text: comment,
+            date: new Date()
+        });
+
+        // Save the post with the new comment
+        await post.save();
+
+        // Redirect back to the feed or post view
+        res.redirect('/feed'); // Adjust as necessary
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 // Route to render the login page
 app.get("/", (req, res) => {
@@ -188,6 +226,32 @@ app.post('/create-post', upload.fields([{ name: 'image', maxCount: 1 }, { name: 
     } catch (error) {
         console.error('Error creating post:', error);
         res.redirect('/create-post?message=Error creating post');
+    }
+});
+
+// Handle comment submission
+app.post('/comment-post/:id', async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/');
+    }
+    const { comment } = req.body;
+
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) {
+            return res.status(404).send('Post not found');
+        }
+
+        post.comments.push({
+            author: req.session.user.name,
+            text: comment,
+        });
+
+        await post.save();
+        res.redirect('/feed?message=Comment added successfully');
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        res.redirect('/feed?message=Error adding comment');
     }
 });
 
